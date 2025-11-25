@@ -1,0 +1,219 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "myblog",
+    "section": "",
+    "text": "Análise de Linhas e Paradas SPTrans\n\n\n\nnews\n\ncode\n\nanalysis\n\ntransporte\n\n\n\n\n\n\n\n\n\nNov 25, 2025\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nAnálise da Cotação do Dólar\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nNov 25, 2025\n\n\nHGuilherme Santos\n\n\n\n\n\n\n\n\n\n\n\n\nRegressão Linear: Anos de Estudo vs Salário\n\n\n\nnews\n\ncode\n\nanalysis\n\nestatística\n\n\n\n\n\n\n\n\n\nNov 25, 2025\n\n\nHarlow Malloc\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Análise da Cotação do Dólar",
+    "section": "",
+    "text": "Este documento apresenta uma análise da cotação do dólar utilizando dados do Banco Central do Brasil. O código busca automaticamente as cotações de compra e venda para um período específico e gera visualizações interativas."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this blog"
+  },
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+  },
+  {
+    "objectID": "posts/post-with-code/index.html#introdução",
+    "href": "posts/post-with-code/index.html#introdução",
+    "title": "Análise da Cotação do Dólar",
+    "section": "",
+    "text": "Este documento apresenta uma análise da cotação do dólar utilizando dados do Banco Central do Brasil. O código busca automaticamente as cotações de compra e venda para um período específico e gera visualizações interativas."
+  },
+  {
+    "objectID": "posts/post-with-code/index.html#análise-de-cotação-do-dólar",
+    "href": "posts/post-with-code/index.html#análise-de-cotação-do-dólar",
+    "title": "Análise da Cotação do Dólar",
+    "section": "Análise de Cotação do Dólar",
+    "text": "Análise de Cotação do Dólar\nO código abaixo busca dados da API do Banco Central (PTAX) e gera um gráfico interativo com as cotações de compra e venda do dólar ao longo do mês.\n\nimport requests\nimport calendar\nfrom datetime import datetime, timedelta\nimport plotly.graph_objects as go\n\n\ndef f(periodo):\n   \n    first_date = datetime.strptime(periodo, \"%m%Y\")\n    last_date = first_date.replace(\n        day=calendar.monthrange(first_date.year, first_date.month)[1]\n    )\n    \n    data_inicial = first_date.strftime(\"%m-%d-%Y\")\n    data_final = last_date.strftime(\"%m-%d-%Y\")\n    \n    url = f\"https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarPeriodo(dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@dataInicial='{data_inicial}'&@dataFinalCotacao='{data_final}'&$format=json\"\n    \n    print(f\"Buscando cotações de {first_date.strftime('%d/%m/%Y')} a {last_date.strftime('%d/%m/%Y')}...\")\n    \n    try:\n        response = requests.get(url)\n        response.raise_for_status()\n        data = response.json()\n    except requests.exceptions.RequestException as e:\n        print(f\"Erro ao buscar dados: {e}\")\n        return None\n    \n    cotacoes = data.get('value', [])\n    \n    if not cotacoes:\n        print(\"Nenhuma cotação encontrada para este período.\")\n        return None\n    \n    cotacoes_dict = {}\n    for cotacao in cotacoes:\n        data_cotacao = datetime.strptime(cotacao['dataHoraCotacao'], \"%Y-%m-%d %H:%M:%S.%f\")\n        cotacoes_dict[data_cotacao.date()] = {\n            'compra': cotacao['cotacaoCompra'],\n            'venda': cotacao['cotacaoVenda']\n        }\n    \n    datas = []\n    valores_compra = []\n    valores_venda = []\n    \n    current_date = first_date\n    ultima_cotacao = None\n    \n    while current_date &lt;= last_date:\n        date_key = current_date.date()\n        \n        if date_key in cotacoes_dict:\n            ultima_cotacao = cotacoes_dict[date_key]\n        \n        if ultima_cotacao:\n            datas.append(current_date)\n            valores_compra.append(ultima_cotacao['compra'])\n            valores_venda.append(ultima_cotacao['venda'])\n        \n        current_date += timedelta(days=1)\n    \n    fig = go.Figure()\n    \n    fig.add_trace(go.Scatter(\n        x=datas,\n        y=valores_compra,\n        mode='lines+markers',\n        name='Cotação Compra',\n        line=dict(color='blue', width=2),\n        marker=dict(size=4)\n    ))\n    \n    fig.add_trace(go.Scatter(\n        x=datas,\n        y=valores_venda,\n        mode='lines+markers',\n        name='Cotação Venda',\n        line=dict(color='red', width=2),\n        marker=dict(size=4)\n    ))\n    \n    mes_nome = first_date.strftime(\"%B\").capitalize()\n    ano = first_date.year\n    \n    fig.update_layout(\n        title=f'Cotação do Dólar - {mes_nome} de {ano}',\n        xaxis_title='Data',\n        yaxis_title='Cotação (R$)',\n        hovermode='x unified',\n        template='plotly_white',\n        xaxis=dict(tickformat='%d/%m'),\n        height=600\n    )\n    \n    print(f\"Gráfico gerado com sucesso! Total de dias: {len(datas)}\")\n    \n    return fig\n\n\n# Executando a análise para outubro de 2023\nperiodo = \"102023\"\nfig = f(periodo)\nfig.show()\n\nBuscando cotações de 01/10/2023 a 31/10/2023...\nGráfico gerado com sucesso! Total de dias: 30"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html#conclusão",
+    "href": "posts/post-with-code/index.html#conclusão",
+    "title": "Análise da Cotação do Dólar",
+    "section": "Conclusão",
+    "text": "Conclusão\nO gráfico acima mostra a evolução das cotações do dólar ao longo do período analisado, permitindo identificar tendências e variações no câmbio."
+  },
+  {
+    "objectID": "posts/dolar/index.html",
+    "href": "posts/dolar/index.html",
+    "title": "Análise da Cotação do Dólar",
+    "section": "",
+    "text": "Este documento apresenta uma análise da cotação do dólar utilizando dados do Banco Central do Brasil. O código busca automaticamente as cotações de compra e venda para um período específico e gera visualizações interativas."
+  },
+  {
+    "objectID": "posts/dolar/index.html#introdução",
+    "href": "posts/dolar/index.html#introdução",
+    "title": "Análise da Cotação do Dólar",
+    "section": "",
+    "text": "Este documento apresenta uma análise da cotação do dólar utilizando dados do Banco Central do Brasil. O código busca automaticamente as cotações de compra e venda para um período específico e gera visualizações interativas."
+  },
+  {
+    "objectID": "posts/dolar/index.html#análise-de-cotação-do-dólar",
+    "href": "posts/dolar/index.html#análise-de-cotação-do-dólar",
+    "title": "Análise da Cotação do Dólar",
+    "section": "Análise de Cotação do Dólar",
+    "text": "Análise de Cotação do Dólar\nO código abaixo busca dados da API do Banco Central (PTAX) e gera um gráfico interativo com as cotações de compra e venda do dólar ao longo do mês.\n\nimport requests\nimport calendar\nfrom datetime import datetime, timedelta\nimport plotly.graph_objects as go\n\n\ndef f(periodo):\n   \n    first_date = datetime.strptime(periodo, \"%m%Y\")\n    last_date = first_date.replace(\n        day=calendar.monthrange(first_date.year, first_date.month)[1]\n    )\n    \n    data_inicial = first_date.strftime(\"%m-%d-%Y\")\n    data_final = last_date.strftime(\"%m-%d-%Y\")\n    \n    url = f\"https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarPeriodo(dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@dataInicial='{data_inicial}'&@dataFinalCotacao='{data_final}'&$format=json\"\n    \n    print(f\"Buscando cotações de {first_date.strftime('%d/%m/%Y')} a {last_date.strftime('%d/%m/%Y')}...\")\n    \n    try:\n        response = requests.get(url)\n        response.raise_for_status()\n        data = response.json()\n    except requests.exceptions.RequestException as e:\n        print(f\"Erro ao buscar dados: {e}\")\n        return None\n    \n    cotacoes = data.get('value', [])\n    \n    if not cotacoes:\n        print(\"Nenhuma cotação encontrada para este período.\")\n        return None\n    \n    cotacoes_dict = {}\n    for cotacao in cotacoes:\n        data_cotacao = datetime.strptime(cotacao['dataHoraCotacao'], \"%Y-%m-%d %H:%M:%S.%f\")\n        cotacoes_dict[data_cotacao.date()] = {\n            'compra': cotacao['cotacaoCompra'],\n            'venda': cotacao['cotacaoVenda']\n        }\n    \n    datas = []\n    valores_compra = []\n    valores_venda = []\n    \n    current_date = first_date\n    ultima_cotacao = None\n    \n    while current_date &lt;= last_date:\n        date_key = current_date.date()\n        \n        if date_key in cotacoes_dict:\n            ultima_cotacao = cotacoes_dict[date_key]\n        \n        if ultima_cotacao:\n            datas.append(current_date)\n            valores_compra.append(ultima_cotacao['compra'])\n            valores_venda.append(ultima_cotacao['venda'])\n        \n        current_date += timedelta(days=1)\n    \n    fig = go.Figure()\n    \n    fig.add_trace(go.Scatter(\n        x=datas,\n        y=valores_compra,\n        mode='lines+markers',\n        name='Cotação Compra',\n        line=dict(color='blue', width=2),\n        marker=dict(size=4)\n    ))\n    \n    fig.add_trace(go.Scatter(\n        x=datas,\n        y=valores_venda,\n        mode='lines+markers',\n        name='Cotação Venda',\n        line=dict(color='red', width=2),\n        marker=dict(size=4)\n    ))\n    \n    mes_nome = first_date.strftime(\"%B\").capitalize()\n    ano = first_date.year\n    \n    fig.update_layout(\n        title=f'Cotação do Dólar - {mes_nome} de {ano}',\n        xaxis_title='Data',\n        yaxis_title='Cotação (R$)',\n        hovermode='x unified',\n        template='plotly_white',\n        xaxis=dict(tickformat='%d/%m'),\n        height=600\n    )\n    \n    print(f\"Gráfico gerado com sucesso! Total de dias: {len(datas)}\")\n    \n    return fig\n\n\n# Executando a análise para outubro de 2023\nperiodo = \"102023\"\nfig = f(periodo)\nfig.show()\n\nBuscando cotações de 01/10/2023 a 31/10/2023...\nGráfico gerado com sucesso! Total de dias: 30"
+  },
+  {
+    "objectID": "posts/dolar/index.html#conclusão",
+    "href": "posts/dolar/index.html#conclusão",
+    "title": "Análise da Cotação do Dólar",
+    "section": "Conclusão",
+    "text": "Conclusão\nO gráfico acima mostra a evolução das cotações do dólar ao longo do período analisado, permitindo identificar tendências e variações no câmbio."
+  },
+  {
+    "objectID": "posts/onibus/index.html",
+    "href": "posts/onibus/index.html",
+    "title": "Análise de Linhas e Paradas SPTrans",
+    "section": "",
+    "text": "Este documento apresenta uma análise das linhas de ônibus da SPTrans na região da Lapa, utilizando a API Olho Vivo. O código busca informações sobre linhas, paradas e posições dos veículos, gerando visualizações interativas em mapa."
+  },
+  {
+    "objectID": "posts/onibus/index.html#introdução",
+    "href": "posts/onibus/index.html#introdução",
+    "title": "Análise de Linhas e Paradas SPTrans",
+    "section": "",
+    "text": "Este documento apresenta uma análise das linhas de ônibus da SPTrans na região da Lapa, utilizando a API Olho Vivo. O código busca informações sobre linhas, paradas e posições dos veículos, gerando visualizações interativas em mapa."
+  },
+  {
+    "objectID": "posts/onibus/index.html#configuração-e-autenticação",
+    "href": "posts/onibus/index.html#configuração-e-autenticação",
+    "title": "Análise de Linhas e Paradas SPTrans",
+    "section": "Configuração e Autenticação",
+    "text": "Configuração e Autenticação\nPrimeiro, realizamos a autenticação na API SPTrans e buscamos as linhas disponíveis na região da Lapa.\n\nimport os\nimport requests\nimport json\nfrom dotenv import load_dotenv\nfrom folium import Map, Marker\n\n# Carrega variáveis de ambiente\nload_dotenv(\".env\")\n\n# Inicia sessão e autentica na API\ns = requests.Session()\nres = s.post(\n    f\"http://api.olhovivo.sptrans.com.br/v2.1/Login/Autenticar?token={os.getenv('SPTRANS_TOKEN')}\"\n)\nprint(f\"Status da autenticação: {res.text}\")\n\nStatus da autenticação: true"
+  },
+  {
+    "objectID": "posts/onibus/index.html#busca-de-linhas-na-lapa",
+    "href": "posts/onibus/index.html#busca-de-linhas-na-lapa",
+    "title": "Análise de Linhas e Paradas SPTrans",
+    "section": "Busca de Linhas na Lapa",
+    "text": "Busca de Linhas na Lapa\nAgora buscamos todas as linhas que passam pela região da Lapa.\n\n# Busca linhas na região da Lapa\nlinhas_lapa = s.get(\n    \"http://api.olhovivo.sptrans.com.br/v2.1/Linha/Buscar?termosBusca=Lapa\"\n)\nlinhas_lapa = linhas_lapa.json()\n\n# Exibe as 3 primeiras linhas\nprint(f\"Total de linhas encontradas: {len(linhas_lapa)}\")\nprint(\"\\nPrimeiras 3 linhas:\")\nfor linha in linhas_lapa[:3]:\n    print(f\"- {linha}\")\n\nTotal de linhas encontradas: 152\n\nPrimeiras 3 linhas:\n- {'cl': 841, 'lc': False, 'lt': '118Y', 'sl': 1, 'tl': 10, 'tp': 'LAPA', 'ts': 'LAUZANE PAULISTA'}\n- {'cl': 33609, 'lc': False, 'lt': '118Y', 'sl': 2, 'tl': 10, 'tp': 'LAPA', 'ts': 'LAUZANE PAULISTA'}\n- {'cl': 2273, 'lc': False, 'lt': '119L', 'sl': 1, 'tl': 10, 'tp': 'TERM. LAPA', 'ts': 'VL. SULINA'}"
+  },
+  {
+    "objectID": "posts/onibus/index.html#mapeamento-de-paradas",
+    "href": "posts/onibus/index.html#mapeamento-de-paradas",
+    "title": "Análise de Linhas e Paradas SPTrans",
+    "section": "Mapeamento de Paradas",
+    "text": "Mapeamento de Paradas\nBuscamos as paradas da linha 2506 e criamos um mapa interativo com todas as paradas.\n\n# Busca paradas da linha 2506\nres = s.get(\n    \"http://api.olhovivo.sptrans.com.br/v2.1/Parada/BuscarParadasPorLinha?codigoLinha=2506\"\n)\nparadas = res.json()\n\nprint(f\"Total de paradas encontradas: {len(paradas)}\")\nprint(\"\\nPrimeiras 3 paradas:\")\nfor parada in paradas[:3]:\n    print(f\"- {parada}\")\n\nTotal de paradas encontradas: 15\n\nPrimeiras 3 paradas:\n- {'cp': 7014417, 'np': 'ANGELICA B/C', 'ed': 'AV   ANGELICA', 'py': -23.534564, 'px': -46.654302}\n- {'cp': 60016784, 'np': 'PARADA PALMEIRAS B/C', 'ed': 'R PADRE ANTONIO TOMAS/ AV POMPEIA', 'py': -23.525799, 'px': -46.679251}\n- {'cp': 60016786, 'np': 'ANTARTICA B/C', 'ed': 'PC SOUSA ARANHA/ VDTO ANTARTICA', 'py': -23.526523, 'px': -46.673588}"
+  },
+  {
+    "objectID": "posts/onibus/index.html#visualização-das-paradas-no-mapa",
+    "href": "posts/onibus/index.html#visualização-das-paradas-no-mapa",
+    "title": "Análise de Linhas e Paradas SPTrans",
+    "section": "Visualização das Paradas no Mapa",
+    "text": "Visualização das Paradas no Mapa\nCriamos um mapa interativo com todas as paradas da linha.\n\n# Cria mapa centrado na primeira parada\nm = Map(location=[paradas[3][\"py\"], paradas[3][\"px\"]], zoom_start=14)\n\n# Adiciona marcador para cada parada\nfor i in paradas:\n    Marker(location=[i[\"py\"], i[\"px\"]], popup=i[\"np\"]).add_to(m)\n\n# Salva o mapa\nm.save(\"2506.html\")\nprint(\"Mapa salvo como '2506.html'\")\n\n# Exibe o mapa\nm\n\nMapa salvo como '2506.html'\n\n\nMake this Notebook Trusted to load map: File -&gt; Trust Notebook"
+  },
+  {
+    "objectID": "posts/onibus/index.html#posição-em-tempo-real-dos-veículos",
+    "href": "posts/onibus/index.html#posição-em-tempo-real-dos-veículos",
+    "title": "Análise de Linhas e Paradas SPTrans",
+    "section": "Posição em Tempo Real dos Veículos",
+    "text": "Posição em Tempo Real dos Veículos\nConsultamos a posição atual dos veículos da linha.\n\n# Busca posição dos veículos\npos = s.get(\n    \"http://api.olhovivo.sptrans.com.br/v2.1//Posicao/Linha?codigoLinha=2506\"\n)\nposicoes = pos.json()\n\nprint(f\"Dados de posição: {posicoes}\")\n\nDados de posição: {'hr': '21:31', 'vs': [{'p': '12599', 'a': True, 'ta': '2025-11-25T00:30:42Z', 'py': -23.52087225, 'px': -46.70017, 'sv': None, 'is': None}, {'p': '12732', 'a': True, 'ta': '2025-11-25T00:30:53Z', 'py': -23.520449499999998, 'px': -46.6996115, 'sv': None, 'is': None}, {'p': '12601', 'a': True, 'ta': '2025-11-25T00:27:30Z', 'py': -23.535463749999998, 'px': -46.652741, 'sv': None, 'is': None}, {'p': '12533', 'a': True, 'ta': '2025-11-25T00:30:55Z', 'py': -23.527812499999996, 'px': -46.671280499999995, 'sv': None, 'is': None}]}"
+  },
+  {
+    "objectID": "posts/onibus/index.html#conclusão",
+    "href": "posts/onibus/index.html#conclusão",
+    "title": "Análise de Linhas e Paradas SPTrans",
+    "section": "Conclusão",
+    "text": "Conclusão\nEste documento demonstra como utilizar a API Olho Vivo da SPTrans para obter informações sobre transporte público em São Paulo, incluindo linhas, paradas e posicionamento em tempo real dos veículos."
+  },
+  {
+    "objectID": "posts/linear/index.html",
+    "href": "posts/linear/index.html",
+    "title": "Regressão Linear: Anos de Estudo vs Salário",
+    "section": "",
+    "text": "Este documento apresenta uma análise completa de regressão linear para investigar a relação entre anos de estudo e salário. Utilizamos álgebra linear e a fórmula matricial para calcular os coeficientes da regressão de forma eficiente."
+  },
+  {
+    "objectID": "posts/linear/index.html#introdução",
+    "href": "posts/linear/index.html#introdução",
+    "title": "Regressão Linear: Anos de Estudo vs Salário",
+    "section": "",
+    "text": "Este documento apresenta uma análise completa de regressão linear para investigar a relação entre anos de estudo e salário. Utilizamos álgebra linear e a fórmula matricial para calcular os coeficientes da regressão de forma eficiente."
+  },
+  {
+    "objectID": "posts/linear/index.html#metodologia",
+    "href": "posts/linear/index.html#metodologia",
+    "title": "Análise de Regressão Linear: Estudo vs Salário",
+    "section": "Metodologia",
+    "text": "Metodologia\nA regressão linear é calculada usando a fórmula matricial:\n\\[\\beta = (X^T X)^{-1} X^T y\\]\nonde: - \\(\\beta\\) é o vetor de coeficientes [a, b] - \\(X\\) é a matriz de design com uma coluna de 1’s e os valores de x - \\(y\\) é o vetor de valores observados"
+  },
+  {
+    "objectID": "posts/linear/index.html#implementação-do-modelo",
+    "href": "posts/linear/index.html#implementação-do-modelo",
+    "title": "Análise de Regressão Linear: Estudo vs Salário",
+    "section": "Implementação do Modelo",
+    "text": "Implementação do Modelo\n\nimport numpy as np\nimport plotly.graph_objects as go\n\n\ndef f(arquivo_x, arquivo_y):\n    \"\"\"\n    Calcula regressão linear usando fórmula matricial e gera gráfico.\n    \n    Args:\n        arquivo_x: Caminho do arquivo X.txt (anos de estudo)\n        arquivo_y: Caminho do arquivo y.txt (salário)\n        \n    Returns:\n        Tupla com (coeficientes [a, b], figura do Plotly)\n    \"\"\"\n    try:\n        with open(arquivo_x, 'r') as f:\n            x = np.array([float(line.strip()) for line in f if line.strip()])\n        \n        with open(arquivo_y, 'r') as f:\n            y = np.array([float(line.strip()) for line in f if line.strip()])\n    except FileNotFoundError as e:\n        print(f\"Erro: Arquivo não encontrado - {e}\")\n        print(f\"Certifique-se de que os arquivos estão no diretório: {e.filename}\")\n        return None, None\n    \n    n = len(x)\n    X = np.column_stack([np.ones(n), x])\n    \n    # Cálculo dos coeficientes usando fórmula matricial\n    beta = np.linalg.inv(X.T @ X) @ X.T @ y\n    \n    a = beta[0]\n    b = beta[1]\n    \n    # Valores preditos\n    y_pred = a + b * x\n    \n    # Criação do gráfico\n    fig = go.Figure()\n    \n    fig.add_trace(go.Scatter(\n        x=x,\n        y=y,\n        mode='markers',\n        name='Dados Observados',\n        marker=dict(size=8, color='blue')\n    ))\n    \n    fig.add_trace(go.Scatter(\n        x=x,\n        y=y_pred,\n        mode='lines',\n        name=f'Regressão: y = {a:.2f} + {b:.2f}x',\n        line=dict(color='red', width=2)\n    ))\n    \n    fig.update_layout(\n        title='Relação entre Anos de Estudo e Salário',\n        xaxis_title='Anos de Estudo',\n        yaxis_title='Salário',\n        hovermode='closest',\n        template='plotly_white',\n        showlegend=True\n    )\n    \n    return [a, b], fig"
+  },
+  {
+    "objectID": "posts/linear/index.html#execução-da-análise",
+    "href": "posts/linear/index.html#execução-da-análise",
+    "title": "Análise de Regressão Linear: Estudo vs Salário",
+    "section": "Execução da Análise",
+    "text": "Execução da Análise\nAgora executamos a função com os dados dos arquivos.\n\n# Executa a regressão\nresultado = f('X.txt', 'y.txt')\n\nif resultado[0] is not None:\n    coeficientes, fig = resultado\n    a, b = coeficientes\n    \n    print(f\"Coeficientes da Regressão Linear:\")\n    print(f\"Intercepto (a): {a:.4f}\")\n    print(f\"Coeficiente Angular (b): {b:.4f}\")\n    print(f\"\\nEquação: y = {a:.4f} + {b:.4f}x\")\n    \n    # Exibe o gráfico\n    fig.show()\nelse:\n    print(\"\\n--- INSTRUÇÕES ---\")\n    print(\"1. Baixe os arquivos X.txt e y.txt\")\n    print(\"2. Coloque-os na mesma pasta deste arquivo .qmd\")\n    print(\"3. Execute o código novamente\")\n\nErro: Arquivo não encontrado - [Errno 2] No such file or directory: 'X.txt'\nCertifique-se de que os arquivos estão no diretório: X.txt\n\n--- INSTRUÇÕES ---\n1. Baixe os arquivos X.txt e y.txt\n2. Coloque-os na mesma pasta deste arquivo .qmd\n3. Execute o código novamente"
+  },
+  {
+    "objectID": "posts/linear/index.html#interpretação-dos-resultados",
+    "href": "posts/linear/index.html#interpretação-dos-resultados",
+    "title": "Análise de Regressão Linear: Estudo vs Salário",
+    "section": "Interpretação dos Resultados",
+    "text": "Interpretação dos Resultados\nOs coeficientes obtidos indicam:\n\nIntercepto (a): O salário base esperado quando os anos de estudo são zero\nCoeficiente Angular (b): O aumento esperado no salário para cada ano adicional de estudo\n\nO gráfico acima mostra os dados observados (pontos azuis) e a linha de regressão ajustada (linha vermelha), permitindo visualizar o quanto o modelo se ajusta aos dados."
+  },
+  {
+    "objectID": "posts/linear/index.html#conclusão",
+    "href": "posts/linear/index.html#conclusão",
+    "title": "Regressão Linear: Anos de Estudo vs Salário",
+    "section": "Conclusão",
+    "text": "Conclusão\nA análise de regressão linear fornece uma ferramenta poderosa para entender e quantificar a relação entre educação e renda, permitindo fazer previsões e tomar decisões baseadas em dados."
+  },
+  {
+    "objectID": "posts/linear/index.html#fundamentação-teórica",
+    "href": "posts/linear/index.html#fundamentação-teórica",
+    "title": "Regressão Linear: Anos de Estudo vs Salário",
+    "section": "Fundamentação Teórica",
+    "text": "Fundamentação Teórica\nA regressão linear busca encontrar a melhor reta que se ajusta aos dados, minimizando a soma dos quadrados dos resíduos. A equação da reta é:\n\\[y = a + bx\\]\nUsando a notação matricial, os coeficientes são calculados por:\n\\[\\beta = (X^T X)^{-1} X^T y\\]"
+  },
+  {
+    "objectID": "posts/linear/index.html#dados-de-exemplo",
+    "href": "posts/linear/index.html#dados-de-exemplo",
+    "title": "Regressão Linear: Anos de Estudo vs Salário",
+    "section": "Dados de Exemplo",
+    "text": "Dados de Exemplo\nPrimeiro, vamos criar dados de exemplo para a análise:\n\nimport numpy as np\nimport plotly.graph_objects as go\n\n# Dados de exemplo: Anos de estudo e Salários correspondentes\ndados_x = [8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20]\ndados_y = [2000, 2500, 2700, 3000, 3200, 3500, 3800, 4000, 4300, 4500, 5000]\n\nprint(\"Dados carregados:\")\nprint(f\"Anos de estudo: {dados_x}\")\nprint(f\"Salários: {dados_y}\")\n\nDados carregados:\nAnos de estudo: [8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20]\nSalários: [2000, 2500, 2700, 3000, 3200, 3500, 3800, 4000, 4300, 4500, 5000]"
+  },
+  {
+    "objectID": "posts/linear/index.html#código-de-análise",
+    "href": "posts/linear/index.html#código-de-análise",
+    "title": "Regressão Linear: Anos de Estudo vs Salário",
+    "section": "Código de Análise",
+    "text": "Código de Análise\nAbaixo está a implementação completa da função de regressão linear:\n\ndef f(x_data, y_data):\n    \"\"\"\n    Calcula regressão linear usando fórmula matricial e gera gráfico.\n    \n    Args:\n        x_data: Lista ou array com anos de estudo\n        y_data: Lista ou array com salários\n        \n    Returns:\n        Tupla com (coeficientes [a, b], figura do Plotly)\n    \"\"\"\n    x = np.array(x_data)\n    y = np.array(y_data)\n    \n    n = len(x)\n    X = np.column_stack([np.ones(n), x])\n    \n    # Cálculo usando fórmula matricial\n    beta = np.linalg.inv(X.T @ X) @ X.T @ y\n    \n    a = beta[0]\n    b = beta[1]\n    \n    y_pred = a + b * x\n    \n    # Criação do gráfico interativo\n    fig = go.Figure()\n    \n    fig.add_trace(go.Scatter(\n        x=x,\n        y=y,\n        mode='markers',\n        name='Dados Observados',\n        marker=dict(size=10, color='blue')\n    ))\n    \n    fig.add_trace(go.Scatter(\n        x=x,\n        y=y_pred,\n        mode='lines',\n        name=f'Regressão: y = {a:.2f} + {b:.2f}x',\n        line=dict(color='red', width=2)\n    ))\n    \n    fig.update_layout(\n        title='Relação entre Anos de Estudo e Salário',\n        xaxis_title='Anos de Estudo',\n        yaxis_title='Salário (R$)',\n        hovermode='closest',\n        template='plotly_white',\n        showlegend=True,\n        height=500\n    )\n    \n    return [a, b], fig"
+  },
+  {
+    "objectID": "posts/linear/index.html#execução-e-resultados",
+    "href": "posts/linear/index.html#execução-e-resultados",
+    "title": "Regressão Linear: Anos de Estudo vs Salário",
+    "section": "Execução e Resultados",
+    "text": "Execução e Resultados\nAgora executamos a análise com os dados de exemplo:\n\n# Executa a regressão com os dados\ncoeficientes, fig = f(dados_x, dados_y)\na, b = coeficientes\n\nprint(f\"\\n{'='*50}\")\nprint(f\"RESULTADOS DA REGRESSÃO LINEAR\")\nprint(f\"{'='*50}\")\nprint(f\"Intercepto (a): {a:.4f}\")\nprint(f\"Coeficiente Angular (b): {b:.4f}\")\nprint(f\"\\nEquação da reta: y = {a:.4f} + {b:.4f}x\")\nprint(f\"{'='*50}\\n\")\n\n# Exibe o gráfico interativo\nfig.show()\n\n\n==================================================\nRESULTADOS DA REGRESSÃO LINEAR\n==================================================\nIntercepto (a): -42.4242\nCoeficiente Angular (b): 253.0303\n\nEquação da reta: y = -42.4242 + 253.0303x\n=================================================="
+  },
+  {
+    "objectID": "posts/linear/index.html#interpretação",
+    "href": "posts/linear/index.html#interpretação",
+    "title": "Regressão Linear: Anos de Estudo vs Salário",
+    "section": "Interpretação",
+    "text": "Interpretação\n\nCoeficientes\n\nIntercepto (a): Representa o salário base estimado quando os anos de estudo são zero\nCoeficiente Angular (b): Indica o aumento médio no salário para cada ano adicional de estudo\n\n\n\nVisualização\nO gráfico interativo acima mostra:\n\nPontos azuis: Dados reais observados\nLinha vermelha: Modelo de regressão ajustado\n\nA proximidade dos pontos à linha indica a qualidade do ajuste do modelo."
+  }
+]
