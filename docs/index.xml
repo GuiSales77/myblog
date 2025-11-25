@@ -13,7 +13,7 @@
 <lastBuildDate>Tue, 25 Nov 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>Análise de Linhas e Paradas SPTrans</title>
-  <dc:creator>Harlow Malloc</dc:creator>
+  <dc:creator>Guilherme Santos</dc:creator>
   <link>https://your-website-url.example.com/posts/onibus/</link>
   <description><![CDATA[ 
 
@@ -824,11 +824,11 @@ font-style: inherit;">"</span>)</span></code></pre></div></div>
   <category>transporte</category>
   <guid>https://your-website-url.example.com/posts/onibus/</guid>
   <pubDate>Tue, 25 Nov 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://your-website-url.example.com/posts/onibus/image.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://your-website-url.example.com/posts/onibus/image.png" medium="image" type="image/png" height="108" width="144"/>
 </item>
 <item>
   <title>Análise da Cotação do Dólar</title>
-  <dc:creator>HGuilherme Santos</dc:creator>
+  <dc:creator>Guilherme Santos</dc:creator>
   <link>https://your-website-url.example.com/posts/dolar/</link>
   <description><![CDATA[ 
 
@@ -1347,11 +1347,11 @@ if (outputEl) {{
   <category>analysis</category>
   <guid>https://your-website-url.example.com/posts/dolar/</guid>
   <pubDate>Tue, 25 Nov 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://your-website-url.example.com/posts/dolar/dolar.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://your-website-url.example.com/posts/dolar/dolar.png" medium="image" type="image/png" height="81" width="144"/>
 </item>
 <item>
   <title>Regressão Linear: Anos de Estudo vs Salário</title>
-  <dc:creator>Harlow Malloc</dc:creator>
+  <dc:creator>Guilherme Santos</dc:creator>
   <link>https://your-website-url.example.com/posts/linear/</link>
   <description><![CDATA[ 
 
@@ -1885,7 +1885,7 @@ if (outputEl) {{
   <category>estatística</category>
   <guid>https://your-website-url.example.com/posts/linear/</guid>
   <pubDate>Tue, 25 Nov 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://your-website-url.example.com/posts/linear/foto-curso-de-matematica.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://your-website-url.example.com/posts/linear/foto-curso-de-matematica.png" medium="image" type="image/png" height="117" width="144"/>
 </item>
 </channel>
 </rss>

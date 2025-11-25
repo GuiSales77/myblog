@@ -1,9 +1,9 @@
 ---
 title: "Análise da Cotação do Dólar"
-author: "HGuilherme Santos"
+author: "Guilherme Santos"
 date: "2025-11-25"
 categories: [news, code, analysis]
-image: "dolar.jpg"
+image: "dolar.png"
 format: 
   html:
     code-fold: false

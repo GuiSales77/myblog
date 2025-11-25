@@ -1,9 +1,9 @@
 ---
 title: "Análise de Linhas e Paradas SPTrans"
-author: "Harlow Malloc"
+author: "Guilherme Santos"
 date: "2025-11-25"
 categories: [news, code, analysis, transporte]
-image: "image.jpg"
+image: "image.png"
 format: 
   html:
     code-fold: false

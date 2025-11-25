@@ -1,9 +1,9 @@
 ---
 title: "Regressão Linear: Anos de Estudo vs Salário"
-author: "Harlow Malloc"
+author: "Guilherme Santos"
 date: "2025-11-25"
 categories: [news, code, analysis, estatística]
-image: "foto-curso-de-matematica.jpg"
+image: "foto-curso-de-matematica.png"
 format: 
   html:
     code-fold: false
